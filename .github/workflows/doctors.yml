@@ -34,7 +34,7 @@ jobs:
         push: true
         tags: shameer6749/doctors-system:${{ github.sha }}
 
-    - name: Update docker-compose.yml
+    - name: Update docker-compose.yaml
       run: |
         sed -i 's/shameer6749\/doctors-system:.*/shameer6749\/doctors-system:${{ github.sha }}/' docker-compose.yaml
       working-directory: ${{ github.workspace }}
@@ -43,6 +43,6 @@ jobs:
       run: |
         git config --global user.email "shameerabdullah.sa7@gmail.com"
         git config --global user.name "ShameerAbdullah"
-        git add docker-compose.yml
-        git commit -m "Update docker-compose.yml for doctors"
+        git add docker-compose.yaml
+        git commit -m "Update docker-compose.yaml for doctors"
         git push
