@@ -32,4 +32,4 @@ jobs:
         context: ./frontend
         file: ./frontend/Dockerfile
         push: true
-        tags: yourdockerhubusername/frontend:${{ github.sha }}
+        tags: shameer6749/frontend:${{ github.sha }}
