@@ -37,7 +37,8 @@ jobs:
     - name: Update docker-compose.yml
       run: |
         sed -i 's/shameer6749\/appointments-system:.*/shameer6749\/appointments-system:${{ github.sha }}/' docker-compose.yml
-
+      working-directory: ${{ github.workspace }}
+      
     - name: Commit and push if changed
       run: |
         git config --global user.email "shameerabdullah.sa7@gmail.com"
