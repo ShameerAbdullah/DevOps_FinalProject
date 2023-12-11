@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 app = Flask(__name__)
 
 doctors = [
@@ -25,3 +25,4 @@ def getDoctor(id):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8081)
+
