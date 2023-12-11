@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 app = Flask(__name__)
 
-
 appointments = [
     {'id': "1", 'doctor': "1", 'date': "21 Nov 2023", 'rating': "Good"},
     {'id': "2", 'doctor': "1", 'date': "22 Nov 2023", 'rating': "Bad"},
