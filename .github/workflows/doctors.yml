@@ -30,4 +30,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./doctors
-        file:
+        file: ./doctors/Dockerfile
+        push: true
+        tags: shameer6749/doctors:${{ github.sha }}
