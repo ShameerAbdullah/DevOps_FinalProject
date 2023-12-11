@@ -1,5 +1,5 @@
 name: CI for Appointments Service
-
+ 
 on:
   push:
     branches: [ main ]
