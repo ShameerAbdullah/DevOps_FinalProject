@@ -1,0 +1,91 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'doctors/**'
+      - 'appointments/**'
+      - 'frontend/**'
+      - 'docker-compose.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'doctors/**'
+      - 'appointments/**'
+      - 'frontend/**'
+      - 'docker-compose.yml'
+
+jobs:
+  build-and-push-doctor:
+    runs-on: ubuntu-latest
+    if: contains(github.event_path, 'doctors/') || github.event_name == 'pull_request'
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+    - name: Build and push Doctor Docker image
+      run: |
+        DOCKER_VERSION=$(echo "${{ github.sha }}" | cut -c1-7)
+        docker build -t shameer6749/doctors-system:$DOCKER_VERSION ./doctors
+        docker push shameer6749/doctors-system:$DOCKER_VERSION
+
+  build-and-push-appointment:
+    runs-on: ubuntu-latest
+    if: contains(github.event_path, 'appointments/') || github.event_name == 'pull_request'
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+    - name: Build and push Appointment Docker image
+      run: |
+        DOCKER_VERSION=$(echo "${{ github.sha }}" | cut -c1-7)
+        docker build -t shameer6749/appointments-system:$DOCKER_VERSION ./appointments
+        docker push shameer6749/appointments-system:$DOCKER_VERSION
+
+  build-and-push-frontend:
+    runs-on: ubuntu-latest
+    if: contains(github.event_path, 'frontend/') || github.event_name == 'pull_request'
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+    - name: Build and push Frontend Docker image
+      run: |
+        DOCKER_VERSION=$(echo "${{ github.sha }}" | cut -c1-7)
+        docker build -t shameer6749/frontend-system:$DOCKER_VERSION ./frontend
+        docker push shameer6749/frontend-system:$DOCKER_VERSION
+
+  update-docker-compose:
+    runs-on: ubuntu-latest
+    needs: [build-and-push-doctor, build-and-push-appointment, build-and-push-frontend]
+    if: github.event_name == 'push'
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Update Docker Compose file
+      run: |
+        DOCKER_VERSION=$(echo "${{ github.sha }}" | cut -c1-7)
+        sed -i "s/image: shameer6749\/doctors-system:.*/image: shameer6749\/doctors-system:$DOCKER_VERSION/" docker-compose.yml
+        sed -i "s/image: shameer6749\/appointments-system:.*/image: shameer6749\/appointments-system:$DOCKER_VERSION/" docker-compose.yml
+        sed -i "s/image: shameer6749\/frontend-system:.*/image: shameer6749\/frontend-system:$DOCKER_VERSION/" docker-compose.yml
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'ShameerAbdullah'
+        git config --global user.email 'shameerabdullah.sa7@gmail.com'
+        git add docker-compose.yml
+        git commit -m "Update Docker images in docker-compose.yml"
+        git push
