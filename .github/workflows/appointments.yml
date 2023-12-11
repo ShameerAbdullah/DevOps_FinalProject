@@ -1,5 +1,5 @@
-name: CI for Appointments Service
- 
+name: Appointments Service CI/CD
+
 on:
   push:
     branches: [ main ]
@@ -11,12 +11,11 @@ on:
       - 'appointments/**'
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
@@ -34,7 +33,3 @@ jobs:
         file: ./appointments/Dockerfile
         push: true
         tags: yourdockerhubusername/appointments:${{ github.sha }}
-
-    # Optional: Add steps to update docker-compose.yml with the new image tag
-    # and push the change back to the repository. This step requires additional
-    # scripting and setup.
