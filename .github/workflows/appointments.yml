@@ -32,4 +32,4 @@ jobs:
         context: ./appointments
         file: ./appointments/Dockerfile
         push: true
-        tags: yourdockerhubusername/appointments:${{ github.sha }}
+        tags: shameer6749/appointments:${{ github.sha }}
