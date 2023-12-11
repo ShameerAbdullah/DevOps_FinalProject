@@ -9,7 +9,7 @@ doctors = [
     {'id': "5", 'firstName': "Emily", 'lastName': "Johnson", 'speciality': "Oncology"}
 ]
 
-@app.route('/hello')
+@app.route('/hellos')
 def hello():
     greeting = "Hello world!"
     return greeting
