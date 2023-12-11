@@ -24,4 +24,4 @@ def getDoctor(id):
     return jsonify(doctors[id])
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=9090)
+    app.run(host="0.0.0.0", port=8081)
