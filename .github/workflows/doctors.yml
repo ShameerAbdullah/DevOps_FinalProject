@@ -1,59 +1,56 @@
-name: Doctors Service CI/CD
+name: CI/CD Pipeline for Doctors Microservice
 
 on:
-  push:
+  pull_request:
     branches: [ main ]
     paths:
       - 'doctors/**'
-  pull_request:
+  push:
     branches: [ main ]
     paths:
       - 'doctors/**'
 
 jobs:
-  build:
+  docker_process:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Clone Repository
+      uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
+    - name: Prepare Docker Builder
       uses: docker/setup-buildx-action@v1
 
-    - name: Login to Docker Hub
+    - name: Authenticate Docker Hub
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-    - name: Build and push Docker image
+    - name: Docker Build & Push
       uses: docker/build-push-action@v2
       with:
-        context: ./doctors
         file: ./doctors/Dockerfile
-        push: true
+        context: ./doctors
         tags: shameer6749/doctors-system:${{ github.sha }}
+        push: true
 
-    - name: Update docker-compose.yaml
+    - name: Modify docker-compose.yaml for Doctors
       run: |
         sed -i 's/shameer6749\/doctors-system:.*/shameer6749\/doctors-system:${{ github.sha }}/' docker-compose.yaml
       working-directory: ${{ github.workspace }}
 
-    - name: Check for changes
-      id: git-check
+    - name: Verify Git Changes
+      id: check_git
       run: |
         git diff
-        if git diff --quiet; then
-          echo "::set-output name=changes::false"
-        else
-          echo "::set-output name=changes::true"
-        fi
+        git diff --quiet && echo "::set-output name=detected_changes::false" || echo "::set-output name=detected_changes::true"
 
-    - name: Commit and push if changed
-      if: steps.git-check.outputs.changes == 'true'
+    - name: Push Changes to Repository
+      if: steps.check_git.outputs.detected_changes == 'true'
       run: |
         git config --global user.email "shameerabdullah.sa7@gmail.com"
         git config --global user.name "ShameerAbdullah"
         git add docker-compose.yaml
-        git commit -m "Update docker-compose.yaml for doctors"
+        git commit -m "Automated docker-compose.yaml update for Doctors Service"
         git push
