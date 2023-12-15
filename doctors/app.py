@@ -1,59 +1,46 @@
 from flask import Flask, jsonify, request
-from pymongo import MongoClient, errors
+from pymongo import MongoClient
 from flask_cors import CORS
-import os
 
 app = Flask(__name__)
 CORS(app)
+client = MongoClient('mongodb://mongodb-service:27017/')
+db = client['doctors_db']
+doctors_collection = db['doctors']
 
-# Using environment variables for database URI
-mongo_uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
-try:
-    client = MongoClient(mongo_uri)
-    db = client['healthcare_db']
-    doctors_collection = db['healthcare_professionals']
-except errors.ConnectionFailure:
-    print("Could not connect to MongoDB")
-
-initial_healthcare_professionals = [
-    {'id': "1", 'firstName': "John", 'lastName': "Doe", 'speciality': "Cardiology"},
-    {'id': "2", 'firstName': "Jane", 'lastName': "Smith", 'speciality': "Neurology"},
-    {'id': "3", 'firstName': "Emily", 'lastName': "Johnson", 'speciality': "Dermatology"},
-    {'id': "4", 'firstName': "Michael", 'lastName': "Brown", 'speciality': "Pediatrics"},
-    {'id': "5", 'firstName': "Linda", 'lastName': "Davis", 'speciality': "General Practice"},
-    {'id': "6", 'firstName': "Robert", 'lastName': "Wilson", 'speciality': "Orthopedics"},
-    {'id': "7", 'firstName': "Maria", 'lastName': "Garcia", 'speciality': "Gynecology"},
-    {'id': "8", 'firstName': "James", 'lastName': "Miller", 'speciality': "Oncology"},
-    {'id': "9", 'firstName': "Patricia", 'lastName': "Anderson", 'speciality': "Psychiatry"},
-    {'id': "10", 'firstName': "Charles", 'lastName': "Thomas", 'speciality': "Anesthesiology"},
-    {'id': "11", 'firstName': "Lisa", 'lastName': "White", 'speciality': "Rheumatology"},
-    {'id': "12", 'firstName': "Paul", 'lastName': "Harris", 'speciality': "Ophthalmology"},
-    {'id': "13", 'firstName': "Nancy", 'lastName': "Clark", 'speciality': "Endocrinology"},
-    {'id': "14", 'firstName': "Kevin", 'lastName': "Lewis", 'speciality': "Urology"},
-    {'id': "15", 'firstName': "Susan", 'lastName': "Lee", 'speciality': "Gastroenterology"},
+# Initial bootstrapping
+initial_doctors = [
+    {'id': "1001", 'firstName': "James", 'lastName': "Smith", 'speciality': "Cardiology"},
+    {'id': "1002", 'firstName': "Linda", 'lastName': "Johnson", 'speciality': "Neurology"},
+    {'id': "1003", 'firstName': "Robert", 'lastName': "Lee", 'speciality': "Orthopedics"},
+    {'id': "1004", 'firstName': "Patricia", 'lastName': "Kim", 'speciality': "Pediatrics"},
+    {'id': "1005", 'firstName': "Michael", 'lastName': "Brown", 'speciality': "Dermatology"},
+    {'id': "1006", 'firstName': "Jennifer", 'lastName': "Davis", 'speciality': "General Surgery"},
+    {'id': "1007", 'firstName': "William", 'lastName': "Garcia", 'speciality': "Psychiatry"},
+    {'id': "1008", 'firstName': "Elizabeth", 'lastName': "Martinez", 'speciality': "Gynecology"}
 ]
-
 
 # Insert initial values if the collection is empty
 if doctors_collection.count_documents({}) == 0:
-    doctors_collection.insert_many(initial_healthcare_professionals)
-
+    doctors_collection.insert_many(initial_doctors)
+    
 @app.route('/hello')
 def hello():
-    return "Hello from Healthcare Professionals API!"
+    greeting = "HELLO WORLD"
+    return greeting
 
-@app.route('/healthcare_professionals', methods=["GET"])
-def get_healthcare_professionals():
-    professionals_list = list(doctors_collection.find({}, {'_id': False}))
-    return jsonify(professionals_list)
+@app.route('/doctors', methods=["GET"])
+def get_doctors():
+    doctors_list = list(doctors_collection.find({}, {'_id': False}))
+    return jsonify(doctors_list)
 
-@app.route('/healthcare_professional/<professional_id>', methods=["GET"])
-def get_healthcare_professional(professional_id):
-    professional = doctors_collection.find_one({'id': professional_id}, {'_id': False})
-    if professional:
-        return jsonify(professional)
+@app.route('/doctor/<doctor_id>', methods=["GET"])
+def get_doctor(doctor_id):
+    doctor = doctors_collection.find_one({'id': doctor_id}, {'_id': False})
+    if doctor:
+        return jsonify(doctor)
     else:
-        return jsonify({'error': 'Healthcare professional not found'}), 404
+        return jsonify({'error': 'Doctor not found'}), 404
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8081)

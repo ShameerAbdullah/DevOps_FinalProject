@@ -1,23 +1,19 @@
 version: '3'
 
 services:
-  doctor-service:
+  doctors-service:
     build:
       context: ./doctors
     ports:
-      - "8081:8081" 
-    environment:
-      - MONGO_URI=mongodb://mongodb:27017/ 
+      - "8081:8081"
     depends_on:
       - mongodb
 
-  appointment-service:
+  appointments-service:
     build:
       context: ./appointments
     ports:
-      - "8082:8082" 
-    environment:
-      - MONGO_URI=mongodb://mongodb:27017/
+      - "8082:8082"
     depends_on:
       - mongodb
 
@@ -25,17 +21,12 @@ services:
     build:
       context: ./frontend
     ports:
-      - "3000:3000"
+      - "30030:3030"
     depends_on:
-      - doctor-service
-      - appointment-service
+      - doctors-service
+      - appointments-service
 
   mongodb:
     image: mongo:latest
     ports:
       - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db 
-
-volumes:
-  mongodb_data: 
