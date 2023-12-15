@@ -1,58 +1,55 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: appointments-kube-deployment
+  name: appointments-deployment
 spec:
-  replicas: 3 
+  replicas: 3
   selector:
     matchLabels:
-      component: appointments
-      app: healthcare-system 
+      tier: appointments
+      app: dice
   template:
     metadata:
       labels:
-        component: appointments
-        app: healthcare-system  
+        tier: appointments
+        app: dice
     spec:
       containers:
-      - name: appointments-service
-        image: shameer6749/appointments-service:v1  
+      - name: appointments
+        image: shameer6749/appointments-system:latest
         ports:
-        - containerPort: 8082  
-          name: http
+        - containerPort: 8082
+          name: tcp
         resources:
           limits:
-            memory: "512Mi"  
-            cpu: "500m"  
+            memory: "256Mi"
+            cpu: "200m"
           requests:
-            memory: "256Mi" 
-            cpu: "250m" 
+            memory: "128Mi"
+            cpu: "100m"
         livenessProbe:
           httpGet:
-            path: /healthcheck  
+            path: /health
             port: 8082
-          initialDelaySeconds: 10  
-          periodSeconds: 5  
-          failureThreshold: 3  
+          initialDelaySeconds: 3
+          periodSeconds: 3
         readinessProbe:
           httpGet:
-            path: /readiness  
+            path: /health
             port: 8082
-          initialDelaySeconds: 15  
-          periodSeconds: 5 
-          successThreshold: 2  
+          initialDelaySeconds: 5
+          periodSeconds: 3
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: appointments-service  
+  name: appointments
 spec:
   selector:
-    component: appointments
-    app: healthcare-system  
+    tier: appointments
+    app: dice
   ports:
   - protocol: TCP
-    port: 8082  
+    port: 8082
     targetPort: 8082
-  type: ClusterIP  
